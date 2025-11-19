@@ -1,6 +1,23 @@
 import requests
+import pathlib
 import streamlit as st  # type: ignore
 from typing import List, Dict
+from classes.card import Card
+
+
+# To apply the CSS file, I define a function that reads the CSS content and wraps it in a Streamlit HTML element.
+# This function is called at the top of the script to ensure styles are applied early.
+
+
+# function to load CSS from assets
+def load_css(file_path):
+    with open(file_path) as f:
+        st.html(f"<style>{f.read()}</style>")
+
+
+# load the external CSS
+css_path = pathlib.Path("assets/style.css")
+load_css(css_path)
 
 
 def characters_page(page=1):
@@ -28,31 +45,45 @@ def character_by_id(id):
         st.write(f"{name} : {say}")
 
 
+def render_card(card: Card):
+    st.markdown(
+        f"""
+        <div class="card">
+            <img src="{card.avatar}">
+            <h4 style="margin: 10px 0 0 0; color: #555;">{card.name}</h4>
+            <p style="margin: 2px; color: #555;">{card.age or ""}</p>
+            <p style="margin: 0; font-size: 14px; color: #888;">{card.occupation or ""}</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def main():
+    __metaclass__ = Card
+
     page_number = 1  # ou st.number_input pour choisir la page
     chars = characters_page(page_number)
 
-    st.write(f"Personnages de la page {page_number} (total {len(chars)})")
+    st.title("The Simpsons API")
+    st.write("Python & Streamlit")
 
-    for c in chars:
-        image_url = "https://cdn.thesimpsonsapi.com/200"
-        img_path = c["portrait_path"]
+    image_url = "https://cdn.thesimpsonsapi.com/200"
+    cols = st.columns(4)
+
+    for index, c in enumerate(chars):
+        img_path = c["portrait_path"] or ""
         avatar = f"{image_url}{img_path}"
 
+        with cols[index % 4]:
+            card = Card(
+                name=c["name"],
+                age=f"{c["age"]} ans" if c["age"] else "",
+                avatar=f"{avatar}",
+                occupation=c["occupation"] if c["occupation"] != "Unknown" else "",
+            )
 
-        st.image({avatar})
-        st.write(c["name"])
-        age = c.get("age")  # utilise get pour éviter KeyError
-        if age is None:
-            st.write(" ")
-        else:
-            st.write(f"{age} ans")
-        
-        occupation = c.get("occupation")
-        if occupation == "Unknown":
-            st.write(" ")
-        else:
-            st.write(occupation)
+            render_card(card)
 
     # Homer = character_by_id(1)
     # st.write(Homer)

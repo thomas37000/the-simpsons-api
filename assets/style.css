@@ -1,0 +1,16 @@
+.card {
+    width: 160px;
+    height: 350px;
+    border-radius: 15px;
+    padding: 5px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background-color: #ffffff;
+    text-align: center;
+    overflow: hidden;
+}
+
+.card:hover {
+    background-color: #f1f1f1;
+    padding: 8px;
+}
